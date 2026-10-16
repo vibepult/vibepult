@@ -35,7 +35,7 @@ svg { fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 [hidden] { display: none !important; }
 
-/* ---------- the light layer (skins.md): candle flicker, neon buzz, firefly drift, slow pulses, desktop only ---------- */
+/* ---------- the light layer (docs/designs/skins.md): candle flicker, neon buzz, firefly drift, slow pulses, desktop only ---------- */
 #lights { display: none; position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
 .light { position: absolute; left: calc(var(--sx) + var(--x) * var(--ss) * 1px); top: calc(var(--sy) + var(--y) * var(--ss) * 1px);
   width: calc(var(--r) * 2 * var(--ss) * 1px); height: calc(var(--r) * 2 * var(--ss) * 1px); transform: translate(-50%, -50%);
@@ -65,7 +65,8 @@ svg { fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round
 .console[aria-busy="true"] .row { opacity: .4; pointer-events: none; }
 .row { display: flex; gap: 12px; align-items: stretch; }
 .row--top { flex: 0 0 auto; } /* sized by its content: the output column and four selectors */
-.row--bottom { flex: 1 1 auto; min-height: 380px; }
+.row--day { flex: 0 0 auto; } /* v2: the day lever, full width between the rows */
+.row--bottom { flex: 1 1 auto; min-height: 320px; }
 .col { flex: 1 1 0; min-width: 0; background-color: var(--panel); background-image: var(--panel-tex, none); background-blend-mode: overlay; border: 1px solid var(--panel-line); border-radius: 8px; }
 .col:not(.output) { border-image: var(--ornament, none) 24 / 24px / 0 round; } /* skin ornaments: 9-slice corners and edge rule, inside the 22 px rim below */
 .panel { display: flex; flex-direction: column; gap: 12px; padding: 22px; } /* the rim the ornaments own */
@@ -79,6 +80,7 @@ svg { fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round
 .brand { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; } /* the search wraps under the name on a phone */
 .brand__name { margin: 0; font-family: var(--font-display); font-size: 28px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
 .brand__sub { font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: var(--text-3); }
+.switch { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--lcd); text-decoration: none; border: 1px solid var(--lcd); border-radius: 3px; padding: 2px 8px; } /* the other desk, same board */
 /* Search: an LCD name display in the brand row (2026-10-09); type a band and the desk recalls it.
    Matches drop out of the field as lines of the same LCD, the active one lit like a pressed pad. */
 .search { position: relative; flex: 1 1 150px; min-width: 0; margin-left: auto; }
@@ -120,6 +122,14 @@ svg { fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round
 .lever--vertical .lever__cap::after { top: 50%; bottom: auto; left: 0; right: 0; width: auto; height: 2px; margin: -1px 0 0; }
 .lever--vertical .readout { left: 100%; top: auto; bottom: 0; }
 
+/* v2: the day lever and its stops, each name under its detent; the nearest stop lit */
+.row--day .panel { gap: 2px; padding: 14px 22px; }
+.stops { position: relative; height: 22px; }
+.stop { position: absolute; left: calc(var(--lever-cap) / 2 + (100% - var(--lever-cap)) * var(--v) / 100); transform: translateX(-50%); padding: 2px 4px; background: none; border: none; cursor: pointer; white-space: nowrap; font-family: var(--font-lcd); font-size: 12px; color: var(--text-3); }
+.stop:first-child { left: 0; transform: none; }
+.stop:last-child { left: auto; right: 0; transform: none; }
+.stop[aria-current="true"] { color: var(--lcd); }
+
 /* ---------- top-middle: U-shaped output ---------- */
 .output { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 18px 40px 72px; border-radius: 8px 8px 50% 50% / 8px 8px 60% 60%;
   background-image: var(--emblem, none), var(--panel-tex, none); background-size: 96px, auto; background-position: center calc(100% - 8px), 0 0; background-repeat: no-repeat, repeat; background-blend-mode: normal, overlay; } /* the skin's sigil sits in the empty bottom of the U */
@@ -142,6 +152,16 @@ svg { fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round
 .output__foot { width: 72%; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 36px; } /* inside the curve */
 .next { height: 36px; padding: 0 14px; border: 1px solid var(--lcd); background: transparent; border-radius: 18px; cursor: pointer; font-size: 15px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--lcd); }
 .next:hover { background: var(--well); }
+.next--dev { opacity: .5; } /* development control */
+.next[aria-pressed="true"] { background: var(--lcd); color: var(--well); box-shadow: 0 0 12px color-mix(in srgb, var(--lcd) 45%, transparent); } /* a toggle, lit like a pressed pad */
+/* The cross-fade between decks: a bar fills under the lamp for as long as the fade runs (player.js FADE). */
+.lamp.crossfading { color: var(--text); font-weight: 600; }
+.lamp.crossfading::after { content: ''; display: block; height: 4px; margin-top: 4px; width: 0; background: currentColor; animation: fill var(--fade, 5s) linear forwards; }
+@keyframes fill { to { width: 100%; } }
+/* v1: the prompt monitor takes the embed's slot */
+.monitor { width: 88%; margin: 0 auto; padding: 8px 12px; max-height: 150px; overflow: auto; list-style: none; font-size: 11px; line-height: 1.4; text-align: left; background: var(--well); border-radius: 12px; }
+.transport { width: 88%; flex-wrap: wrap; justify-content: center; }
+.transport .band__match { flex: 1 0 100%; text-align: center; }
 
 /* ---------- top-right: donations + stepped selectors ---------- */
 .donate { display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; background: var(--well); border: 1px solid var(--btn-line); border-radius: 4px; }
@@ -215,11 +235,21 @@ svg { fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round
 .pad[aria-pressed="true"] { color: var(--well); background: var(--lcd); border-color: var(--lcd); box-shadow: 0 0 12px color-mix(in srgb, var(--lcd) 45%, transparent); }
 .pad:disabled { opacity: .35; cursor: default; }
 
-/* ---------- phone and tablet: result pinned on top, then the strips, then everything else (design-doc "Device support") ---------- */
+/* ---------- v2: no bypass (a fader at 50 leaves the day alone), the clock plate, the tweak bank ---------- */
+.console--v2 .onoff:not(.clock) { display: none; }
+.console--v2 .scribble s { text-decoration: none; opacity: .5; margin-right: 4px; font-size: 11px; } /* the fader's offset before what the model hears */
+.clock-plate { padding: 10px 6px; }
+.clock-plate .lcd { font-size: 34px; line-height: 1; }
+.levers .monitor { flex: 1 1 auto; width: auto; margin: 12px 0 0; max-height: none; border: 1px solid var(--panel-line); border-radius: 3px; } /* the model monitor fills the left panel under the clock */
+.bank .levers { gap: 0; justify-content: space-between; } /* five levers, slimmer, so the bank is no taller than the strips */
+.bank .lever__head { margin-bottom: 0; }
+.bank .lever__track, .bank .lever__cap { height: 32px; }
+
+/* ---------- phone and tablet: result pinned on top, then the strips, then everything else (docs/designs/console) ---------- */
 @media (max-width: 1023px) {
   .console { padding: 0 0 16px; gap: 10px; }
   .console[aria-busy="true"] .row { opacity: 1; } /* the pinned output must stay readable while loading */
-  .row, .panel[aria-label="Master and levers"], .panel[aria-label="Filters"] { display: contents; } /* one stack: band and player, search, faders, tips, lyrics, selectors, master and levers */
+  .row, .panel[aria-label="Master and levers"], .panel[aria-label="Filters"], .panel[aria-label="Selectors"] { display: contents; } /* one stack: band and player, search, faders, tips, lyrics, selectors, master and levers */
   .brand { order: 1; } .strips[data-group="audio"] { order: 2; } .strips[data-group="character"] { order: 3; }
   .donate { order: 4; } .bank.panel { order: 5; } .selects { order: 6; } .left-body { order: 7; }
   .brand, .left-body, .donate, .selects { background: var(--panel); border-top: 1px solid var(--panel-line); border-bottom: 1px solid var(--panel-line); padding: 12px; }
@@ -259,4 +289,6 @@ svg { fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round
   .onoff { height: 36px; }
   .readout { max-width: 180px; }
   .strips .tick { pointer-events: none; }
+  .stops { display: grid; grid-template-columns: repeat(4, 1fr); height: auto; } /* v2: the stop names in two lines */
+  .stop, .stop:first-child, .stop:last-child { position: static; transform: none; }
 }

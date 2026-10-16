@@ -571,3 +571,8 @@ export function skin(pack, slug, palette, overrides = {}, trim = null) {
   }
   return { ...own, ...overrides[pack], lights };
 }
+
+// The helpers, motifs, ornament builders and tiles, for the v2 theme skins in skins2.js. No behaviour here.
+export const kit = { hash, rng, between, i, uri, svg, use, noise, grain, relief, mist, blur, vignette, sky, glow, dots, neon, light, SCENE, W, H,
+  pickId, fern, bough, candle, chain, corners, faces, emblem,
+  leather, lcd, matte, carbon, parchment, brocade, steel, knurl, twill, diamondPlate, tolex, oak, stone, rust, wax, waxSoft, bone, gold, marble, denim, studded, bark };
