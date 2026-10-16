@@ -1,4 +1,4 @@
-"""Stored raw band records -> everything pool-relative -> web/bands.json. Touches no audio."""
+"""Stored raw band records -> everything pool-relative -> web/metal/bands.json. Touches no audio."""
 import datetime
 import json
 import math
@@ -182,8 +182,8 @@ def main(root=ROOT):
         raise SystemExit("no band records in data/bands; run python -m ingest extract first")
     out = build(bands, load_yaml("pool.yaml")["bands"], load_yaml("weights.yaml"), load_yaml("themes.yaml"),
                 load_yaml("lyrics.yaml")["axes"])
-    (root / "web" / "bands.json").write_text(json.dumps(out, ensure_ascii=False, separators=(",", ":"), allow_nan=False))
-    print(f"published {len(bands)} bands to web/bands.json")
+    (root / "web" / "metal" / "bands.json").write_text(json.dumps(out, ensure_ascii=False, separators=(",", ":"), allow_nan=False))
+    print(f"published {len(bands)} bands to web/metal/bands.json")
     for f in out["faders"]:
         print(f"  {f['id']:14} {f['status']}")
     return out

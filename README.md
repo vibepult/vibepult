@@ -1,8 +1,15 @@
 # vibepult
 
+Two desks live here, and they do not link to each other.
+
+- `/` (`web/`): the vibe machine. Faders, a day lever and a theme steer a music stream that Lyria RealTime generates live, through a relay. The page is blank without a token; a token holder opens it once as `https://vibepult.github.io/#token=...` and the browser keeps it.
+- `/metal/` (`web/metal/`): the metal browser, described below.
+
+## The metal browser
+
 A mixing console for metal. The faders set how a band should feel (aggressive, serene, dark, heavy...), the desk answers with the nearest band in the pool, plays it through a Spotify embed, and re-skins itself to that band's subgenre.
 
-Everything the desk knows is measured from audio and metadata offline and shipped as one static file, `web/bands.json`. There is no server and no Spotify login.
+Everything the desk knows is measured from audio and metadata offline and shipped as one static file, `web/metal/bands.json`. There is no server and no Spotify login.
 
 ## Open the desk
 
@@ -10,7 +17,7 @@ Everything the desk knows is measured from audio and metadata offline and shippe
 python web/serve.py
 ```
 
-Open http://localhost:8000. It has to be served over http: opening `index.html` from disk does not work, and the page says so. `serve.py` is `python -m http.server` with caching turned off, so a reload always runs the latest code and data.
+Open http://localhost:8000/metal/ (the vibe machine is at http://localhost:8000/). It has to be served over http: opening `index.html` from disk does not work, and the page says so. `serve.py` is `python -m http.server` with caching turned off, so a reload always runs the latest code and data.
 
 On a phone, on the same Wi-Fi: find the laptop's address (`ipconfig getifaddr en0` on a Mac) and open `http://<that address>:8000`.
 
@@ -72,7 +79,7 @@ The pipeline, per band or for the whole pool:
 ```
 .venv/bin/python -m ingest fetch [slug]     # Metal Archives metadata, iTunes previews -> data/fetch, data/audio
 .venv/bin/python -m ingest extract [slug]   # audio features per clip -> data/clips, per band -> data/bands
-.venv/bin/python -m ingest publish          # -> web/bands.json
+.venv/bin/python -m ingest publish          # -> web/metal/bands.json
 .venv/bin/python -m ingest check
 ```
 
@@ -85,7 +92,7 @@ To add a single band by hand, add an entry to `ingest/pool.yaml` (iTunes, Deezer
 ## Tests
 
 ```
-.venv/bin/python -m pytest -q ingest/tests && node --test web/*.test.js
+.venv/bin/python -m pytest -q ingest/tests && node --test web/*.test.js web/metal/*.test.js
 ```
 
 ## Where things are
@@ -93,5 +100,6 @@ To add a single band by hand, add an entry to `ingest/pool.yaml` (iTunes, Deezer
 - `docs/designs/poc-24h.md`: the plan this build follows, with decisions and step-0 results.
 - `docs/designs/design-doc.md`: the full product it grows into.
 - `ingest/`: the offline pipeline, configs and check.
-- `web/`: the desk. `engine.js` is the matching logic (no DOM); `console.js` is the UI.
+- `web/`: the vibe machine. `compose.js` turns the desk into prompts (no DOM); `player.js` plays the relay's audio; `v2.js` is the page.
+- `web/metal/`: the metal browser. `engine.js` is the matching logic (no DOM); `console.js` is the UI.
 - `data/`: measured records (`fetch`, `clips`, `bands`) and the sealed ground truth.
