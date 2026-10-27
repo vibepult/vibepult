@@ -544,22 +544,33 @@ function renderLights(lights) {
 }
 
 let embedTimer;
+// The player follows the ids we have: the Spotify artist embed when the band has a Spotify id, else the Apple Music
+// embed of the band's latest album (the iTunes album its clips came from).
+function playerFor(band) {
+  return band.spotify
+    ? { name: 'Spotify', link: `https://open.spotify.com/artist/${band.spotify}`,
+        src: `https://open.spotify.com/embed/artist/${band.spotify}?utm_source=generator&theme=0` }
+    : { name: 'Apple Music', link: `https://music.apple.com/us/album/${band.album}`,
+        src: `https://embed.music.apple.com/us/album/${band.album}?theme=dark` };
+}
+
 function swapEmbed(band) {
   const iframe = $('embed');
   const ph = $('embed-placeholder');
-  const link = `https://open.spotify.com/artist/${band.spotify}`;
-  $('open-spotify').href = link;
+  const player = playerFor(band);
+  $('open-spotify').href = player.link;
+  $('open-spotify').textContent = `Open in ${player.name}`;
   $('open-spotify').hidden = false;
   ph.hidden = false;
-  ph.replaceChildren(el('strong', { text: band.name }), el('span', { text: 'Loading Spotify' }));
+  ph.replaceChildren(el('strong', { text: band.name }), el('span', { text: `Loading ${player.name}` }));
   iframe.hidden = true;
-  iframe.title = `Spotify player for ${band.name}`;
+  iframe.title = `${player.name} player for ${band.name}`;
   clearTimeout(embedTimer);
   embedTimer = setTimeout(() => {
-    ph.replaceChildren(el('strong', { text: band.name }), el('a', { href: link, target: '_blank', rel: 'noopener', text: 'Open in Spotify' }));
+    ph.replaceChildren(el('strong', { text: band.name }), el('a', { href: player.link, target: '_blank', rel: 'noopener', text: `Open in ${player.name}` }));
   }, EMBED_TIMEOUT_MS);
   iframe.onload = () => { clearTimeout(embedTimer); ph.hidden = true; iframe.hidden = false; };
-  iframe.src = `https://open.spotify.com/embed/artist/${band.spotify}?utm_source=generator&theme=0`;
+  iframe.src = player.src;
 }
 
 // ---------------------------------------------------------------------------------------------- misc
